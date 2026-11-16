@@ -1,7 +1,7 @@
 // free-model-aggregator-02: one server, two client wires, a real free model behind every answer.
 //
 // The shape of a trial:
-//   the env sends six prompts, one at a time, three on the [OI] Chat Completions wire and three on the
+//   the env sends six prompts, one at a time, three on the OpenAI Chat Completions wire and three on the
 //   Anthropic Messages wire, some streaming, some in JSON mode, one declaring tools; every prompt carries
 //   a unique token its answer must carry back. This server picks a free model for each one, dials it on
 //   the gateway's Chat Completions route, and hands the provider's own answer back in the wire the client
@@ -45,11 +45,10 @@ import {
   openAIModelList,
   type ServedModel,
 } from './lib/wire.ts';
-// The kit spells these two with a bracketed export name, so they are reached through the namespace.
 import * as wire from './lib/wire.ts';
 import { openAIStreamFrames } from './lib/stream.ts';
 
-// The kit spells two of its exports with a bracketed name, so they are looked up rather than imported.
+// The two Anthropic translators of lib/wire.ts, found by their name prefix.
 function wireFunction(prefix: string): (...args: never[]) => unknown {
   for (const [name, value] of Object.entries(wire)) {
     if (name.startsWith(prefix) && typeof value === 'function' && name !== 'anthropicError') return value as never;
@@ -95,7 +94,7 @@ function log(message: string): void {
   process.stderr.write(`aggregator: ${message}\n`);
 }
 
-/** The gateway's Chat Completions route, from the [OI]-compatible root the sandbox sets. */
+/** The gateway's Chat Completions route, from the OpenAI-compatible root the sandbox sets. */
 function chatCompletionsUrl(): string {
   if (GATEWAY_URL === '') return '';
   return GATEWAY_URL.endsWith('/v1') ? `${GATEWAY_URL}/chat/completions` : `${GATEWAY_URL}/v1/chat/completions`;
@@ -309,7 +308,7 @@ function giveUp(res: ServerResponse, wire: 'openai' | 'anthropic', failure: Atte
   }
 }
 
-/** POST /v1/chat/completions: an [OI]-shaped client, answered by the strongest free model that can serve it. */
+/** POST /v1/chat/completions: an OpenAI-shaped client, answered by the strongest free model that can serve it. */
 async function chat(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const body = await readJson(req);
   if (body === null) return sendError(res, 'openai', 400, 'invalid_request_error', 'the request body is not one JSON object');

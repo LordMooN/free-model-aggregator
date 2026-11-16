@@ -1,4 +1,4 @@
-// The [OI] event stream, rewritten on its way to the client: every chunk names the model this aggregator
+// The OpenAI event stream, rewritten on its way to the client: every chunk names the model this aggregator
 // really dialled, exactly one chunk carries a finish reason, and the stream ends with one [DONE].
 //
 // A free provider is not careful about the stream's shape: one sends its finish reason twice, once in the
@@ -58,8 +58,8 @@ function rewriteFrame(frame: string, model: string, state: { finishSeen: boolean
 }
 
 /**
- * The gateway's Chat Completions stream, as the client's [OI] stream: the same events, the model named back,
- * one finish reason, one [DONE]. A provider that never sent [DONE] gets one from here, which is what an [OI]
+ * The gateway's Chat Completions stream, as the client's OpenAI stream: the same events, the model named back,
+ * one finish reason, one [DONE]. A provider that never sent [DONE] gets one from here, which is what an OpenAI
  * client waits for.
  */
 export async function* openAIStreamFrames(
